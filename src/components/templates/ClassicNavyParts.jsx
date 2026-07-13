@@ -1,4 +1,3 @@
-// 单条工作经历的渲染逻辑，抽出来复用（第1页、续页、测量容器都会用到）
 export function ExperienceItem({ job }) {
   return (
     <div>
@@ -16,7 +15,6 @@ export function ExperienceItem({ job }) {
   );
 }
 
-// 单条教育背景的渲染逻辑，同样抽出来复用
 export function EducationItem({ edu }) {
   return (
     <div>
@@ -26,6 +24,19 @@ export function EducationItem({ edu }) {
         <span>{edu.dateRange}</span>
       </div>
       <p className="text-slate-600">{edu.details}</p>
+    </div>
+  );
+}
+
+export function ProjectItem({ project }) {
+  return (
+    <div>
+      <div className="flex justify-between">
+        <h3 className="text-lg font-serif font-bold text-slate-900">{project.name}</h3>
+        <span className="text-sm text-slate-500">{project.dateRange}</span>
+      </div>
+      <p className="text-sm text-slate-500 mb-1">{project.role}</p>
+      <p className="text-slate-600 leading-relaxed">{project.description}</p>
     </div>
   );
 }
