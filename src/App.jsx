@@ -8,7 +8,7 @@ import MinimalLight from "./components/templates/MinimalLight";
 import defaultResumeData from "./data/defaultResumeData";
 import templateRegistry from "./data/templateRegistry";
 import { useAutoPagination } from "./hooks/useAutoPagination";
-import { exportToPDF } from "./utils/exportResume";
+import { exportToPDF, exportToJSON, importFromJSON } from "./utils/exportResume";
 
 function App() {
   const [resumeData, setResumeData] = useState(defaultResumeData);
@@ -25,6 +25,30 @@ function App() {
     const elements = pageRefs.current.filter(Boolean); // 过滤掉空的 ref
     if (elements.length === 0) return;
     await exportToPDF(elements, `${resumeData.fullName || "resume"}.pdf`);
+  };
+  const handleExportJSON = () => {
+    exportToJSON(resumeData, `${resumeData.fullName || "resume"}-data.json`);
+  };
+
+  const fileInputRef = useRef(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click(); // 模拟点击隐藏的文件选择框
+  };
+
+  const handleFileSelected = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const importedData = await importFromJSON(file);
+      setResumeData(importedData);
+      alert("导入成功!");
+    } catch (err) {
+      alert(`导入失败:${err.message}`);
+    } finally {
+      e.target.value = ""; // 清空选择,方便下次重复选择同一个文件也能触发
+    }
   };
 
   return (
@@ -58,7 +82,29 @@ function App() {
           >
             导出为 PDF
           </button>
+<div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={handleExportJSON}
+              className="bg-white border border-slate-300 text-slate-700 py-2 rounded-lg text-sm font-medium hover:bg-slate-50"
+            >
+              导出配置
+            </button>
+            <button
+              onClick={handleImportClick}
+              className="bg-white border border-slate-300 text-slate-700 py-2 rounded-lg text-sm font-medium hover:bg-slate-50"
+            >
+              导入配置
+            </button>
+          </div>
 
+          {/* 隐藏的文件选择框,用户看不到,由上面的按钮触发点击 */}
+          <input
+            type="file"
+            accept="application/json"
+            ref={fileInputRef}
+            onChange={handleFileSelected}
+            className="hidden"
+          />
           <EditorForm data={resumeData} onChange={setResumeData} />
         </div>
 

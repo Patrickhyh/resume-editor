@@ -45,3 +45,35 @@ export async function exportToImage(element, fileName = "resume.png") {
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+// 把当前简历数据导出成一个 JSON 文件,方便备份/以后导入恢复
+export function exportToJSON(data, fileName = "resume-data.json") {
+  const jsonStr = JSON.stringify(data, null, 2); // null, 2 是为了让文件里的格式带缩进,方便人眼查看
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.download = fileName;
+  link.href = url;
+  link.click();
+
+  URL.revokeObjectURL(url); // 释放内存
+}
+
+// 从用户选择的 JSON 文件里读取数据,返回一个 Promise
+export function importFromJSON(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        resolve(data);
+      } catch (err) {
+        reject(new Error("文件内容不是有效的 JSON 格式"));
+      }
+    };
+
+    reader.onerror = () => reject(new Error("文件读取失败"));
+    reader.readAsText(file);
+  });
+}
